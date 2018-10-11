@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="beads-io">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../beads/library/beads-io.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/beads.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/jarjar-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/jl1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/jna.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/mp3spi1.9.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/org-jaudiolibs-audioservers-jack.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/org-jaudiolibs-audioservers-javasound.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/org-jaudiolibs-audioservers.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/org-jaudiolibs-jnajack.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/tools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/tritonus_aos-0.3.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../beads/library/tritonus_share.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
