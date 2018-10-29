@@ -1,11 +1,12 @@
 package visual;
 
 import javafx.scene.image.Image;
+import music.Oscillator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Visitor extends Entity {
+public class Visitor extends Entity implements Oscillator {
 
     private boolean waiting = false;
     private final float waitingLimit = 180;
