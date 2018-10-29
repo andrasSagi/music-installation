@@ -1,3 +1,5 @@
+package visual;
+
 import javafx.scene.image.Image;
 
 public class Entrance extends Entity {

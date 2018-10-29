@@ -1,7 +1,8 @@
-import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
+package visual;
 
-public class Exit extends Entity {
+import javafx.scene.image.Image;
+
+public class Exit extends Target {
 
     public Exit(double x, double y, Exhibition exhibition) {
         super(exhibition);

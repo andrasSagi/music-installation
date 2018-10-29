@@ -1,8 +1,13 @@
-import javafx.scene.layout.Pane;
+package visual;
 
-public class ShowPiece extends Entity {
+import javafx.scene.image.Image;
 
-    public ShowPiece(Exhibition exhibition) {
+public class ShowPiece extends Target {
+
+    public ShowPiece(double x, double y, Exhibition exhibition) {
         super(exhibition);
+        setX(x);
+        setY(y);
+        setImage(new Image("thinker1.png"));
     }
 }

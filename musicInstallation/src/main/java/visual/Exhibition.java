@@ -1,4 +1,7 @@
+package visual;
+
 import javafx.scene.layout.Pane;
+import music.MusicGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,7 @@ public class Exhibition extends Pane {
     private Exit exit;
     private List<Visitor> audience = new ArrayList<>();
     private List<Visitor> exVisitors = new ArrayList<>();
+    private List<ShowPiece> showPieces = new ArrayList<>();
 
     public Exhibition(MusicGenerator musicGenerator) {
         this.musicGenerator = musicGenerator;
@@ -20,7 +24,7 @@ public class Exhibition extends Pane {
         return entrance;
     }
 
-    public Exit getExit() {
+    Exit getExit() {
         return exit;
     }
 
@@ -32,7 +36,7 @@ public class Exhibition extends Pane {
         this.exit = exit;
     }
 
-    public void addVisitor(Visitor visitor) {
+    void addVisitor(Visitor visitor) {
         audience.add(visitor);
     }
 
@@ -41,23 +45,31 @@ public class Exhibition extends Pane {
         loop.start();
     }
 
-    public List<Visitor> getVisitors() {
+    List<Visitor> getVisitors() {
         return audience;
     }
 
-    public void addExVisitor(Visitor visitor) {
+    void addExVisitor(Visitor visitor) {
         exVisitors.add(visitor);
     }
 
-    public void clearVisitors(List<Visitor> visitors) {
+    void clearVisitors(List<Visitor> visitors) {
         audience.removeAll(visitors);
     }
 
-    public void clearExVisitors() {
+    void clearExVisitors() {
         exVisitors.clear();
     }
 
-    public List<Visitor> getExVisitors() {
+    List<Visitor> getExVisitors() {
         return exVisitors;
+    }
+
+    public void addShowPiece(ShowPiece showPiece) {
+        showPieces.add(showPiece);
+    }
+
+    List<ShowPiece> getShowPieces() {
+        return showPieces;
     }
 }

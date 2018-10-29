@@ -1,10 +1,12 @@
+package visual;
+
 import javafx.animation.AnimationTimer;
 
 public class Loop extends AnimationTimer {
 
     private Exhibition exhibition;
 
-    public Loop(Exhibition exhibition) {
+    Loop(Exhibition exhibition) {
         this.exhibition = exhibition;
     }
 
