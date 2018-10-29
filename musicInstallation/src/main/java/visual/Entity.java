@@ -1,11 +1,12 @@
+package visual;
+
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 
-public abstract class Entity extends ImageView {
+abstract class Entity extends ImageView {
 
-    protected Exhibition exhibition;
+    Exhibition exhibition;
 
-    public Entity(Exhibition exhibition) {
+    Entity(Exhibition exhibition) {
         this.exhibition = exhibition;
         exhibition.getChildren().add(this);
     }
