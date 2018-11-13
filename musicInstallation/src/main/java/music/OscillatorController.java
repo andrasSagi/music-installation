@@ -157,11 +157,19 @@ public class OscillatorController {
         //beadsGenerator.removeOscillator(this);
     }
 
+    AudioContext getAudioContext() {
+        return beadsGenerator.getAc();
+    }
+
     public Glide getGlide() {
         return glide;
     }
 
     public BeadsGenerator getBeadsGenerator() {
         return beadsGenerator;
+    }
+
+    float getFreq() {
+        return freq;
     }
 }
