@@ -30,7 +30,7 @@ public class Main extends Application {
 
         });
         primaryStage.setTitle("Enotronix");
-        primaryStage.setScene(new Scene(exhibition, 1000, 700));
+        primaryStage.setScene(new Scene(exhibition, exhibition.getActualWidth(), exhibition.getActualHeight()));
         primaryStage.show();
         beadsGenerator.start();
         exhibition.start();
