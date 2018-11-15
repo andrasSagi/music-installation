@@ -16,6 +16,7 @@ public class Visitor extends Entity {
     private Target target;
     private List<Target> targets = new ArrayList<>(exhibition.getShowPieces());
     private Random random;
+    private double xMiddle;
 
     public Visitor(double x, double y, Exhibition exhibition, OscillatorController oscillatorController) {
         super(exhibition);
@@ -24,12 +25,15 @@ public class Visitor extends Entity {
         setImage(new Image("visitor2.png"));
         exhibition.addVisitor(this);
         controller = oscillatorController;
+        controller.setVisitor(this);
         targets.add(exhibition.getExit());
+        xMiddle = exhibition.getActualWidth() / 2;
         random = new Random();
         target = targets.get(random.nextInt(targets.size()));
     }
 
     void step() {
+        controller.getPanner().setPos((float) getPositionOnX());
         if (waiting) {
             waitingTimer += 1;
             if (waitingTimer >= waitingLimit) {
@@ -56,6 +60,11 @@ public class Visitor extends Entity {
                 }
             }
         }
+    }
+
+    private double getPositionOnX() {
+        double distance = getX() - xMiddle;
+        return distance / (xMiddle / 100) / 100;
     }
 
     private double getDistanceFrom(Entity entity) {
