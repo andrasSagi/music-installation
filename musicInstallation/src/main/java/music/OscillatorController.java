@@ -4,6 +4,7 @@ import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.*;
+import visual.Visitor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ public class OscillatorController {
     private BeadsGenerator beadsGenerator;
     private AudioContext audioContext;
 
+    private Visitor visitor;
     private Random random;
     private WavePlayer wavePlayer;
     private WavePlayer secondWave;
@@ -38,6 +40,7 @@ public class OscillatorController {
     private Gain positionalGain;
     private Gain limiter;
     private Gain tremoloGain;
+    private Panner panner;
 
     public OscillatorController(BeadsGenerator beadsGenerator) {
         this.beadsGenerator = beadsGenerator;
@@ -139,8 +142,10 @@ public class OscillatorController {
         highPassFilter.addInput(lowPassFilter);
         positionalGain.addInput(highPassFilter);
         reverb.addInput(positionalGain);
-        limiter.addInput(reverb);
-        audioContext.out.addInput(limiter);
+        panner = new Panner(audioContext, 0);
+        panner.addInput(reverb);
+        limiter.addInput(panner);
+        audioContext.out.addInput(panner);
     }
 
     public void removeOscillator() {
@@ -171,5 +176,17 @@ public class OscillatorController {
 
     float getFreq() {
         return freq;
+    }
+
+    public Visitor getVisitor() {
+        return visitor;
+    }
+
+    public void setVisitor(Visitor visitor) {
+        this.visitor = visitor;
+    }
+
+    public Panner getPanner() {
+        return panner;
     }
 }
