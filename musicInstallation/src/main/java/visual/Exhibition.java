@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Exhibition extends Pane {
 
+    private double actualWidth = 1000;
+    private double actualHeight = 700;
     private Loop loop;
     private MusicGenerator musicGenerator;
     private Entrance entrance;
@@ -71,5 +73,13 @@ public class Exhibition extends Pane {
 
     List<ShowPiece> getShowPieces() {
         return showPieces;
+    }
+
+    public double getActualWidth() {
+        return actualWidth;
+    }
+
+    public double getActualHeight() {
+        return actualHeight;
     }
 }
