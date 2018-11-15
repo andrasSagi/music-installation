@@ -7,4 +7,6 @@ public interface Module {
     void setInputModule(Module module);
 
     UGen getOutput();
+
+    void kill();
 }

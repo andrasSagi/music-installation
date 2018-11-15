@@ -23,6 +23,13 @@ public class EffectModule implements Module {
     }
 
     @Override
+    public void kill() {
+        gain.setGain(0);
+        reverb.kill();
+        gain.kill();
+    }
+
+    @Override
     public UGen getOutput() {
         return gain;
     }

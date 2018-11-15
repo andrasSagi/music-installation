@@ -32,4 +32,13 @@ public class FilterModule implements Module {
     public UGen getOutput() {
         return gain;
     }
+
+    @Override
+    public void kill() {
+        gain.setGain(0);
+        lowPassEnvelope.kill();
+        lowPassFilter.kill();
+        highPassFilter.kill();
+        gain.kill();
+    }
 }

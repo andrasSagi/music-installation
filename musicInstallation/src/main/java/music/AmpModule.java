@@ -1,7 +1,6 @@
 package music;
 
 import net.beadsproject.beads.core.UGen;
-import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 
@@ -13,8 +12,8 @@ public class AmpModule implements Module {
 
     public AmpModule(OscillatorController controller) {
         this.controller = controller;
-        envelope = new Envelope(controller.getBeadsGenerator().getAc(), 0.6f);
-        gain = new Gain(controller.getBeadsGenerator().getAc(), 1, envelope);
+        envelope = new Envelope(controller.getAudioContext(), 0.6f);
+        gain = new Gain(controller.getAudioContext(), 1, envelope);
     }
 
     @Override
@@ -25,5 +24,12 @@ public class AmpModule implements Module {
     @Override
     public UGen getOutput() {
         return gain;
+    }
+
+    @Override
+    public void kill() {
+        gain.setGain(0);
+        envelope.kill();
+        gain.kill();
     }
 }
