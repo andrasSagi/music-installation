@@ -1,14 +1,13 @@
 package visual;
 
 import javafx.scene.image.Image;
-import music.Oscillator;
 import music.OscillatorController;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Visitor extends Entity implements Oscillator {
+public class Visitor extends Entity {
 
     private OscillatorController controller;
     private boolean waiting = false;
