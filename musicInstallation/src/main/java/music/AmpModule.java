@@ -10,7 +10,7 @@ public class AmpModule implements Module {
     private Envelope envelope;
     private Gain gain;
 
-    public AmpModule(OscillatorController controller) {
+    AmpModule(OscillatorController controller) {
         this.controller = controller;
         envelope = new Envelope(controller.getAudioContext(), 0.6f);
         gain = new Gain(controller.getAudioContext(), 1, envelope);
