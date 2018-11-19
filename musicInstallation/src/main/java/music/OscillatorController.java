@@ -4,7 +4,6 @@ import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.*;
-import visual.Visitor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,38 +20,62 @@ public class OscillatorController {
 
     private int beatPerNote;
     private int beatCounter = 0;
-    private int filterCounter = 0;
-    private float actualFreq;
-    private float freq;
+    private float actualFrequency;
+    private float baseFrequency;
 
     private BeadsGenerator beadsGenerator;
     private AudioContext audioContext;
 
-    private Visitor visitor;
     private Random random;
-    private WavePlayer wavePlayer;
-    private WavePlayer secondWave;
+
+    private WavePlayer primaryOscillator;
+    private WavePlayer secondaryOscillator;
+    private WavePlayer LFO;
+
     private Bead noteModulator;
-    private LPRezFilter lowPassFilter;
-    private Envelope lowPassEnvelope;
-    private BiquadFilter highPassFilter;
     private Glide glide;
     private Gain positionalGain;
     private Gain limiter;
-    private Gain tremoloGain;
     private Panner panner;
+    private Buffer waveForm;
+
+    private FilterModule filterModule;
+    private AmpModule ampModule;
+    private EffectModule effectModule;
 
     public OscillatorController(BeadsGenerator beadsGenerator) {
         this.beadsGenerator = beadsGenerator;
         audioContext = beadsGenerator.getAc();
         random = new Random();
-        freq = notesOfDDorian[random.nextInt(notesOfDDorian.length)];
-        actualFreq = freq;
-        lowPassEnvelope = new Envelope(audioContext);
+        baseFrequency = notesOfDDorian[random.nextInt(notesOfDDorian.length)];
+        actualFrequency = baseFrequency;
         calculateNoteRelations();
         calculateBeatPerNote();
-        Buffer waveForm = waveForms.get(random.nextInt(waveForms.size()));
-        setUpSound(waveForm);
+        waveForm = waveForms.get(random.nextInt(waveForms.size()));
+        primaryOscillator = new WavePlayer(audioContext, actualFrequency, waveForm);
+        secondaryOscillator = new WavePlayer(audioContext, actualFrequency, waveForm);
+        LFO = new WavePlayer(audioContext, 0.1f, Buffer.SINE);
+        glide = new Glide(audioContext, 0, 50);
+        positionalGain = new Gain(audioContext, 1, glide);
+        limiter = new Gain(audioContext, 1, 0.8f);
+        panner = new Panner(audioContext, 0);
+        filterModule = new FilterModule(this);
+        ampModule = new AmpModule(this);
+        effectModule = new EffectModule(this);
+        setUpSignalChain();
+        setNoteTriggerToClock();
+        setUpSound();
+    }
+
+    private void setUpSignalChain() {
+        filterModule.addInput(primaryOscillator);
+        filterModule.addInput(secondaryOscillator);
+        ampModule.setInputModule(filterModule);
+        effectModule.setInputModule(ampModule);
+        limiter.addInput(effectModule.getOutput());
+        positionalGain.addInput(limiter);
+        panner.addInput(positionalGain);
+        audioContext.out.addInput(panner);
     }
 
     private void calculateBeatPerNote() {
@@ -66,72 +89,32 @@ public class OscillatorController {
     }
 
     private void calculateNoteRelations() {
-        if (freq > 349 && freq < 359) {
+        if (baseFrequency > 349 && baseFrequency < 359) {
             noteRelations[1] = 1;
-        } else if (freq > 493 && freq < 523) {
+        } else if (baseFrequency > 493 && baseFrequency < 523) {
             noteRelations[2] = 1;
         }
     }
 
-    private void setUpSound(Buffer waveForm) {
-        Reverb reverb = new Reverb(audioContext, 1);
+    private void setUpSound() {
         if (waveForm == Buffer.SAW) {
-            reverb.setSize(0.6f);
-            WavePlayer modulator = new WavePlayer(audioContext, 0.1f, Buffer.SINE);
-            Function frequencyModulation = new Function(modulator) {
+            Function frequencyModulation = new Function(LFO) {
                 @Override
                 public float calculate() {
-                    return (x[0] * 3.0f) + actualFreq;
+                    return (x[0] * 3.0f) + actualFrequency;
                 }
             };
-            wavePlayer = new WavePlayer(audioContext, frequencyModulation, waveForm);
-            secondWave = new WavePlayer(audioContext, freq, Buffer.SAW);
-            Bead envelopeStarter = new Bead() {
-                public void messageReceived(Bead message) {
-                    lowPassEnvelope.addSegment(8000, 9000);
-                    lowPassEnvelope.addSegment(8000, 6000);
-                    lowPassEnvelope.addSegment(0, 9000, this);
-                }
-            };
-            lowPassEnvelope.addSegment(8000, 8000);
-            lowPassEnvelope.addSegment(6000, 700);
-            lowPassEnvelope.addSegment(6000, 1750);
-            lowPassEnvelope.addSegment(0, 1750, envelopeStarter);
-            lowPassFilter = new LPRezFilter(audioContext, lowPassEnvelope, 0.7f);
-            lowPassFilter.addInput(wavePlayer);
-            lowPassFilter.addInput(secondWave);
-        } else if (waveForm == Buffer.SQUARE) {
-            reverb.setSize(0.2f);
-            wavePlayer = new WavePlayer(audioContext, freq, waveForm);
-            WavePlayer LFO = new WavePlayer(audioContext, 2, Buffer.SINE);
-            Gain lfoGain = new Gain(audioContext, 1, 0.8f);
-            lfoGain.addInput(LFO);
-            Function tremolo = new Function(lfoGain) {
-                @Override
-                public float calculate() {
-                    return x[0];
-                }
-            };
-            lowPassFilter = new LPRezFilter(audioContext, 8000, 0);
-            tremoloGain = new Gain(audioContext, 1, tremolo);
-            tremoloGain.addInput(wavePlayer);
-            lowPassFilter.addInput(tremoloGain);
-        } else {
-            reverb.setSize(0.2f);
-            wavePlayer = new WavePlayer(audioContext, freq, waveForm);
-            lowPassFilter = new LPRezFilter(audioContext, 8000, 0);
-            lowPassFilter.addInput(wavePlayer);
+            primaryOscillator.setFrequency(frequencyModulation);
         }
-        glide = new Glide(audioContext, 0, 50);
-        highPassFilter = new BiquadFilter(audioContext, BiquadFilter.HP, freq-100, 0.2f);
-        positionalGain = new Gain(audioContext, 1, glide);
+    }
+
+    private void setNoteTriggerToClock() {
         Clock clock = beadsGenerator.getBeatClock();
-        limiter = new Gain(audioContext, 1, 0.5f);
         noteModulator = new Bead() {
             public void messageReceived(Bead message) {
                 if (beatCounter >= beatPerNote) {
-                    actualFreq = freq * noteRelations[random.nextInt(noteRelations.length)];
-                    wavePlayer.setFrequency(actualFreq);
+                    actualFrequency = baseFrequency * noteRelations[random.nextInt(noteRelations.length)];
+                    secondaryOscillator.setFrequency(actualFrequency);
                     beatCounter = 0;
                 } else {
                     beatCounter++;
@@ -139,27 +122,20 @@ public class OscillatorController {
             }
         };
         clock.addMessageListener(noteModulator);
-        highPassFilter.addInput(lowPassFilter);
-        positionalGain.addInput(highPassFilter);
-        reverb.addInput(positionalGain);
-        panner = new Panner(audioContext, 0);
-        panner.addInput(reverb);
-        limiter.addInput(panner);
-        audioContext.out.addInput(panner);
     }
 
     public void removeOscillator() {
         glide.setValue(0);
-
-        wavePlayer.kill();
-//        secondWave.kill();
-        lowPassFilter.kill();
-        highPassFilter.kill();
+        effectModule.kill();
+        ampModule.kill();
+        filterModule.kill();
+        primaryOscillator.kill();
+        secondaryOscillator.kill();
+        LFO.kill();
         positionalGain.kill();
         limiter.kill();
         glide.kill();
         noteModulator.kill();
-        //beadsGenerator.removeOscillator(this);
     }
 
     AudioContext getAudioContext() {
@@ -170,23 +146,15 @@ public class OscillatorController {
         return glide;
     }
 
-    public BeadsGenerator getBeadsGenerator() {
-        return beadsGenerator;
-    }
-
-    float getFreq() {
-        return freq;
-    }
-
-    public Visitor getVisitor() {
-        return visitor;
-    }
-
-    public void setVisitor(Visitor visitor) {
-        this.visitor = visitor;
+    float getBaseFrequency() {
+        return baseFrequency;
     }
 
     public Panner getPanner() {
         return panner;
+    }
+
+    Buffer getWaveForm() {
+        return waveForm;
     }
 }
