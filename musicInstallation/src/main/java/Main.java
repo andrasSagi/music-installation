@@ -25,8 +25,9 @@ public class Main extends Application {
         exhibition.addShowPiece(new ShowPiece(700, 100, exhibition));
         exhibition.addShowPiece(new ShowPiece(100, 150, exhibition));
         exhibition.addShowPiece(new ShowPiece(650, 420, exhibition));
+        exhibition.addShowPiece(new ShowPiece(900, 350, exhibition));
         addVisitor.setOnAction(e -> {
-            new Visitor(exhibition.getEntrance().getX(), exhibition.getEntrance().getY(), exhibition, new OscillatorController(beadsGenerator));
+            new Visitor(exhibition, new OscillatorController(beadsGenerator));
 
         });
         primaryStage.setTitle("Enotronix");
