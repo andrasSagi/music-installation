@@ -11,25 +11,35 @@ public class Visitor extends Entity {
 
     private OscillatorController controller;
     private boolean waiting = false;
-    private final float waitingLimit = 600;
+    private final static float waitingLimit = 1000;
     private float waitingTimer = 0;
     private Target target;
     private List<Target> targets = new ArrayList<>(exhibition.getShowPieces());
     private Random random;
     private double xMiddle;
 
-    public Visitor(double x, double y, Exhibition exhibition, OscillatorController oscillatorController) {
+    public Visitor(Exhibition exhibition, OscillatorController oscillatorController) {
         super(exhibition);
-        setX(x);
-        setY(y);
+        setX(exhibition.getEntrance().getX());
+        setY(exhibition.getEntrance().getY());
         setImage(new Image("visitor2.png"));
         exhibition.addVisitor(this);
         controller = oscillatorController;
-        controller.setVisitor(this);
         targets.add(exhibition.getExit());
         xMiddle = exhibition.getActualWidth() / 2;
         random = new Random();
-        target = targets.get(random.nextInt(targets.size()));
+        setTarget();
+    }
+
+    private void setTarget() {
+        double gauss = random.nextGaussian() + Math.round(targets.size() / 2);
+        if (gauss < 0) {
+            target = targets.get(0);
+        } else if (gauss > targets.size() - 1) {
+            target = targets.get(targets.size() - 1);
+        } else {
+            target = targets.get((int) Math.round(gauss));
+        }
     }
 
     void step() {
@@ -48,13 +58,13 @@ public class Visitor extends Entity {
             double average = (exitDistance + entranceDistance) / 2;
             double min = entranceDistance < exitDistance ? entranceDistance : exitDistance;
             double value = (min * 100.0f) / average;
-            controller.getGlide().setValue((float) value / 100 - controller.getBeadsGenerator().getOscillatorNumber() * 5);
+            controller.getGlide().setValue((float) value / 100);
             if (getBoundsInParent().intersects(target.getBoundsInParent())) {
                 if (target instanceof Exit) {
                     destroy();
                 } else {
                     targets.remove(target);
-                    target = targets.get(random.nextInt(targets.size()));
+                    setTarget();
                     waiting = true;
                     waitingTimer = 0;
                 }
@@ -81,11 +91,9 @@ public class Visitor extends Entity {
 
     private double getAngle() {
         double angle = Math.toDegrees(Math.atan2(target.getY() - getY(), target.getX() - getX()));
-
         if (angle < 0) {
             angle += 360;
         }
-
         return angle;
     }
 }
