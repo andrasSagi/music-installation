@@ -7,7 +7,7 @@ import net.beadsproject.beads.ugens.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BeadsGenerator implements MusicGenerator {
+public class BeadsGenerator {
 
     private List<OscillatorController> oscillators = new ArrayList<>();
     private AudioContext ac;
@@ -47,7 +47,7 @@ public class BeadsGenerator implements MusicGenerator {
         return oscillators.size();
     }
 
-    public Clock getBeatClock() {
+    Clock getBeatClock() {
         return beatClock;
     }
 }

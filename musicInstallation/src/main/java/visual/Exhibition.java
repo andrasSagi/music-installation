@@ -1,7 +1,7 @@
 package visual;
 
 import javafx.scene.layout.Pane;
-import music.MusicGenerator;
+import music.BeadsGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +11,14 @@ public class Exhibition extends Pane {
     private double actualWidth = 1000;
     private double actualHeight = 700;
     private Loop loop;
-    private MusicGenerator musicGenerator;
+    private BeadsGenerator musicGenerator;
     private Entrance entrance;
     private Exit exit;
     private List<Visitor> audience = new ArrayList<>();
     private List<Visitor> exVisitors = new ArrayList<>();
     private List<ShowPiece> showPieces = new ArrayList<>();
 
-    public Exhibition(MusicGenerator musicGenerator) {
+    public Exhibition(BeadsGenerator musicGenerator) {
         this.musicGenerator = musicGenerator;
     }
 
