@@ -114,7 +114,6 @@ public class OscillatorController {
             public void messageReceived(Bead message) {
                 if (beatCounter >= beatPerNote) {
                     actualFrequency = baseFrequency * noteRelations[random.nextInt(noteRelations.length)];
-                    secondaryOscillator.setFrequency(actualFrequency);
                     beatCounter = 0;
                 } else {
                     beatCounter++;
