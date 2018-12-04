@@ -10,13 +10,14 @@ import java.util.Random;
 public class Visitor extends Entity {
 
     private OscillatorController controller;
-    private boolean waiting = false;
-    private final static float waitingLimit = 1000;
+    private final static float waitingLimit = 2000;
     private float waitingTimer = 0;
     private Target target;
     private List<Target> targets = new ArrayList<>(exhibition.getShowPieces());
     private Random random;
     private double xMiddle;
+    private String status;
+    private List<Visitor> others = new ArrayList<>();
 
     public Visitor(Exhibition exhibition, OscillatorController oscillatorController) {
         super(exhibition);
@@ -29,6 +30,7 @@ public class Visitor extends Entity {
         xMiddle = exhibition.getActualWidth() / 2;
         random = new Random();
         setTarget();
+        status = "moving";
     }
 
     private void setTarget() {
@@ -43,16 +45,23 @@ public class Visitor extends Entity {
     }
 
     void step() {
-        controller.getPanner().setPos((float) getPositionOnX());
-        if (waiting) {
-            waitingTimer += 1;
-            if (waitingTimer >= waitingLimit) {
-                waiting = false;
+        setRotate(getAngle());
+        for (Visitor visitor: exhibition.getVisitors()) {
+            if (visitor.equals(this))
+                continue;
+
+            if (getBoundsInParent().intersects(visitor.getBoundsInParent())
+                    && !getBoundsInParent().intersects(exhibition.getEntrance().getBoundsInParent())) {
+                evade(visitor);
             }
-        } else {
+        }
+        if (status.equals("moving")) {
+            for (Visitor visitor: exhibition.getVisitors()) {
+                visitor.others.remove(this);
+            }
+            controller.getPanner().setPos((float) getPositionOnX());
             setX(target.getX() > getX() ? getX() + 0.3 : getX() - 0.3);
             setY(target.getY() > getY() ? getY() + 0.3 : getY() - 0.3);
-            setRotate(getAngle());
             double entranceDistance = getDistanceFrom(exhibition.getEntrance());
             double exitDistance = getDistanceFrom(exhibition.getExit());
             double average = (exitDistance + entranceDistance) / 2;
@@ -62,13 +71,35 @@ public class Visitor extends Entity {
             if (getBoundsInParent().intersects(target.getBoundsInParent())) {
                 if (target instanceof Exit) {
                     destroy();
-                } else {
-                    targets.remove(target);
-                    setTarget();
-                    waiting = true;
+                } else if (target instanceof ShowPiece) {
+                    others.addAll(((ShowPiece) target).getActualWatchers());
+                    ((ShowPiece) target).addWatcher(this);
+                    status = "waiting";
                     waitingTimer = 0;
                 }
             }
+        } else if (status.equals("waiting")) {
+            waitingTimer += 1;
+            if (waitingTimer >= waitingLimit) {
+                status = "moving";
+                targets.remove(target);
+                ((ShowPiece) target).removeWatcher(this);
+                setTarget();
+            }
+        }
+    }
+
+    private void evade(Visitor visitor) {
+        double originalDistance = getDistanceFrom(target);
+        setX(visitor.getX() > getX() ? getX() - 0.1 : getX() + 0.1);
+        setY(visitor.getY() > getY() ? getY() - 0.1 : getY() + 0.1);
+        double newDistance = getDistanceFrom(target);
+        if (newDistance > originalDistance) {
+            setX(target.getX() > getX() ? getX() + 0.1 : getX() - 0.1);
+            setY(target.getY() > getY() ? getY() + 0.1 : getY() - 0.1);
+        } else if (newDistance < originalDistance) {
+            setX(target.getX() > getX() ? getX() - 0.1 : getX() + 0.1);
+            setY(target.getY() > getY() ? getY() - 0.1 : getY() + 0.1);
         }
     }
 
@@ -95,5 +126,9 @@ public class Visitor extends Entity {
             angle += 360;
         }
         return angle;
+    }
+
+    private Target getTarget() {
+        return target;
     }
 }
