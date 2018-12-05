@@ -19,17 +19,18 @@ public class FilterModule implements Module {
     FilterModule(OscillatorController controller) {
         this.controller = controller;
         lowPassEnvelope = new Envelope(controller.getAudioContext(), 8000);
-        lowPassFilter = new LPRezFilter(controller.getAudioContext(), lowPassEnvelope, 0.7f);
-        highPassFilter = new BiquadFilter(controller.getAudioContext(), BiquadFilter.HP, controller.getBaseFrequency() - 100, 0.2f);
-        gain = new Gain(controller.getAudioContext(), 1, 0.6f);
-        highPassFilter.addInput(lowPassFilter);
-        gain.addInput(highPassFilter);
         if (controller.getWaveForm() == Buffer.SAW) {
             setSawEnvelope();
         }
+        lowPassFilter = new LPRezFilter(controller.getAudioContext(), lowPassEnvelope, 0.7f);
+        highPassFilter = new BiquadFilter(controller.getAudioContext(), BiquadFilter.HP, controller.getBaseFrequency() - 100, 0.2f);
+        gain = new Gain(controller.getAudioContext(), 1, 0.8f);
+        highPassFilter.addInput(lowPassFilter);
+        gain.addInput(highPassFilter);
     }
 
     private void setSawEnvelope() {
+        lowPassEnvelope.setValue(0);
         Bead envelopeStarter = new Bead() {
             public void messageReceived(Bead message) {
                 lowPassEnvelope.addSegment(8000, 9000);

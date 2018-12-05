@@ -13,7 +13,7 @@ public class EffectModule implements Module {
     EffectModule(OscillatorController controller) {
         this.controller = controller;
         reverb = new Reverb(controller.getAudioContext(), 1);
-        gain = new Gain(controller.getAudioContext(), 1, 0.6f);
+        gain = new Gain(controller.getAudioContext(), 1, 0.8f);
         gain.addInput(reverb);
     }
 
